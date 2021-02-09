@@ -34,7 +34,7 @@ class ApplicationState(StatesGroup):
 MOLTEN_LAST_AUTH_DATA: dict = {}
 
 
-async def get_auth_headers(token_expires_preservation_sec: int = 10):
+async def get_headers(token_expires_preservation_sec: int = 10):
     global MOLTEN_LAST_AUTH_DATA
     if (
         not MOLTEN_LAST_AUTH_DATA
@@ -72,7 +72,7 @@ async def show_product_list(message: types.Message):
     async with httpx.AsyncClient() as client:
         response = await client.get(
             f"{settings.MOLTEN_URL}/v2/products",
-            headers=await get_auth_headers(),
+            headers=await get_headers(),
         )
         response.raise_for_status()
     logger.debug("product list received")
@@ -106,14 +106,14 @@ async def show_product_details(call: CallbackQuery, callback_data: dict, state: 
     async with httpx.AsyncClient() as client:
         response = await client.get(
             f"{settings.MOLTEN_URL}/v2/products/{callback_data.get('id')}",
-            headers=await get_auth_headers(),
+            headers=await get_headers(),
         )
         response.raise_for_status()
         product = response.json()["data"]
         main_image_id = product["relationships"]["main_image"]["data"]["id"]
         response = await client.get(
             url=f"https://api.moltin.com/v2/files/{main_image_id}",
-            headers=await get_auth_headers(),
+            headers=await get_headers(),
         )
         response.raise_for_status()
         image_link = response.json()["data"]["link"]["href"]
@@ -151,7 +151,7 @@ async def add_to_cart(
         async with httpx.AsyncClient() as client:
             response = await client.post(
                 f"{settings.MOLTEN_URL}/v2/carts/{call.from_user.id}/items",
-                headers=await get_auth_headers(),
+                headers=await get_headers(),
                 json={"data": {"id": callback_data["id"], "type": "cart_item", "quantity": 1}},
             )
             response.raise_for_status()
@@ -172,13 +172,13 @@ async def show_cart_items(call: CallbackQuery):
     async with httpx.AsyncClient() as client:
         response_cart = await client.get(
             f"{settings.MOLTEN_URL}/v2/carts/{call.from_user.id}",
-            headers=await get_auth_headers(),
+            headers=await get_headers(),
         )
         response_cart.raise_for_status()
 
         response_cart_items = await client.get(
             f"{settings.MOLTEN_URL}/v2/carts/{call.from_user.id}/items",
-            headers=await get_auth_headers(),
+            headers=await get_headers(),
         )
         response_cart_items.raise_for_status()
 
@@ -225,7 +225,7 @@ async def remove_item_from_cart(
     async with httpx.AsyncClient() as client:
         response = await client.delete(
             f"{settings.MOLTEN_URL}/v2/carts/{call.from_user.id}/items/{callback_data['id']}",
-            headers=await get_auth_headers(),
+            headers=await get_headers(),
         )
         response.raise_for_status()
     await call.message.answer("товар товар убран")
@@ -245,7 +245,7 @@ async def receive_email(message: types.Message, state: FSMContext):
         async with httpx.AsyncClient() as client:
             response = await client.post(
                 url=f"{settings.MOLTEN_URL}/v2/customers/{message.from_user.id}",
-                headers=await get_auth_headers(),
+                headers=await get_headers(),
                 json={
                     "data": {
                         "type": "customer",
@@ -280,7 +280,7 @@ async def clear_state(message: types.Message, state: FSMContext):
 
 
 async def on_startup(dp):
-    await get_auth_headers()
+    await get_headers()
     await dp.bot.send_message(settings.TG_BOT_ADMIN_ID, "Бот Запущен и готов к работе!")
 
 
