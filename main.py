@@ -31,14 +31,14 @@ class ApplicationState(StatesGroup):
     WAITING_EMAIL = State()
 
 
-MOLTEN_LAST_AUTH_DATA: dict = {}
+MOLTEN_AUTH_DATA: dict = {}
 
 
 async def get_headers(token_expires_preservation_sec: int = 10):
-    global MOLTEN_LAST_AUTH_DATA
+    global MOLTEN_AUTH_DATA
     if (
-        not MOLTEN_LAST_AUTH_DATA
-        or datetime.utcfromtimestamp(MOLTEN_LAST_AUTH_DATA["expires"] - token_expires_preservation_sec)
+        not MOLTEN_AUTH_DATA
+        or datetime.utcfromtimestamp(MOLTEN_AUTH_DATA["expires"] - token_expires_preservation_sec)
         > datetime.utcnow()
     ):
         response = httpx.post(
@@ -46,10 +46,10 @@ async def get_headers(token_expires_preservation_sec: int = 10):
             data={"client_id": settings.MOLTEN_CLIENT_ID, "grant_type": "implicit"},
         )
         response.raise_for_status()
-        MOLTEN_LAST_AUTH_DATA = response.json()
+        MOLTEN_AUTH_DATA = response.json()
 
     return {
-        "Authorization": f"Bearer {MOLTEN_LAST_AUTH_DATA['access_token']}",
+        "Authorization": f"Bearer {MOLTEN_AUTH_DATA['access_token']}",
         "Content-Type": "application/json",
     }
 
