@@ -20,7 +20,6 @@ from loguru import logger
 from settings import Settings, loguru_config
 
 settings = Settings()
-loop = asyncio.get_event_loop()
 bot = Bot(settings.TG_BOT_TOKEN, parse_mode=types.ParseMode.HTML)
 storage = RedisStorage2(
     host=settings.REDIS_HOST, port=settings.REDIS_PORT, password=settings.REDIS_PASSWORD, db=settings.REDIS_DB
