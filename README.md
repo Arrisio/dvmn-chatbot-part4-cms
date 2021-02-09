@@ -14,7 +14,7 @@ git clone https://github.com/Arrisio/dvmn-chatbot-part4-cms.git
 
 2. Требуется определить следующие переменные окружения:
 - `TG_BOT_TOKEN`=`Ваш токен`.
-- `TG_BOT_ADMIN_ID`=`UserId админа бота в Telegram`.
+- `TG_BOT_ADMIN_ID`=`UserId админа бота в Telegram. Можно узнать у этого бота @userinfobot`
 
 Учетные данные CMS Molten(elasticpath)
 - `MOLTEN_STORE_ID`
