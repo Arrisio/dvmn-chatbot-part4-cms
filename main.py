@@ -1,4 +1,4 @@
-import asyncio
+import logging
 from datetime import datetime
 
 import httpx
@@ -15,9 +15,10 @@ from aiogram.types import (
 )
 from aiogram.utils import executor
 from aiogram.utils.callback_data import CallbackData
-from loguru import logger
 
-from settings import Settings, loguru_config
+from settings import Settings
+
+logger = logging.getLogger(__name__)
 
 settings = Settings()
 bot = Bot(settings.TG_BOT_TOKEN, parse_mode=types.ParseMode.HTML)
@@ -102,7 +103,7 @@ async def show_product_list_cb(call: CallbackQuery):
 
 @dp.callback_query_handler(cb_show_product_details.filter())
 async def show_product_details(call: CallbackQuery, callback_data: dict, state: FSMContext):
-    logger.info("start showing product details", extra=callback_data)
+    logger.info(f"start showing product details | callback_data={callback_data}")
     async with httpx.AsyncClient() as client:
         response = await client.get(
             f"{settings.MOLTEN_URL}/v2/products/{callback_data.get('id')}",
@@ -146,7 +147,7 @@ async def add_to_cart(
     call: CallbackQuery,
     callback_data: dict,
 ):
-    logger.debug("start adding to cart", extra=callback_data)
+    logger.debug(f"start adding to cart | callback_data={callback_data}")
     try:
         async with httpx.AsyncClient() as client:
             response = await client.post(
@@ -157,8 +158,8 @@ async def add_to_cart(
             response.raise_for_status()
         await call.message.answer("товар добавлен")
         await show_product_list(message=call.message)
-    except httpx.HTTPStatusError as e:
-        logger.error(e)
+    except httpx.HTTPStatusError as err:
+        logger.error(err)
         await call.message.answer(
             "При добавлени товара в корзину произошла ошибка. Попробуйте позже или обратитесь в тех.поддержку по тел xxxx"
         )
@@ -221,7 +222,7 @@ async def remove_item_from_cart(
     call: CallbackQuery,
     callback_data: dict,
 ):
-    logger.debug("start removing item from cart", extra=callback_data)
+    logger.debug(f"start removing item from cart | callback_data={callback_data}")
     async with httpx.AsyncClient() as client:
         response = await client.delete(
             f"{settings.MOLTEN_URL}/v2/carts/{call.from_user.id}/items/{callback_data['id']}",
@@ -285,7 +286,10 @@ async def on_startup(dp):
 
 
 if __name__ == "__main__":
-    logger.configure(**loguru_config)
+    logging.basicConfig(
+        level=settings.LOG_LEVEL,
+        format="%(asctime)s - [%(levelname)s] -  %(name)s - (%(filename)s).%(funcName)s(%(lineno)d) - %(message)s",
+    )
     logger.info("telegram service started")
     executor.start_polling(dp, on_startup=on_startup)
     logger.info("service service stopped")
