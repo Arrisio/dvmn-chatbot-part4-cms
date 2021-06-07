@@ -186,7 +186,7 @@ async def show_cart_items(call: CallbackQuery):
     items_in_cart = response_cart_items.json()["data"]
 
     cart_items_description = "\n".join(
-        [f"""<b>{item.get("name")}</b>\nКолличество: {item['quantity']}""" for item in items_in_cart]
+        [f"""<b>{item.get("name")}</b>\nКоличество: {item['quantity']}""" for item in items_in_cart]
     )
     cart_items_description += (
         f"\n\n<b>Итого: {response_cart.json()['data']['meta']['display_price']['with_tax']['formatted']}</b>"
