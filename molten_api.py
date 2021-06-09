@@ -1,8 +1,9 @@
-import asyncio
 import logging
-import httpx
-from settings import MoltenSettings
 from datetime import datetime
+
+import httpx
+
+from settings import MoltenSettings
 
 # наличие всех параметров MoltenSettings обязательно для работы этого модуля. Поэтому считаю оправданным объявлени settings в этом месте
 settings = MoltenSettings()
@@ -10,14 +11,14 @@ settings = MoltenSettings()
 logger = logging.getLogger(__name__)
 
 MOLTEN_AUTH_DATA: dict = {}
-MOLTEN_SESSION: httpx.AsyncClient = httpx.AsyncClient(http2=True)
+MOLTEN_SESSION: httpx.AsyncClient = httpx.AsyncClient(http2=True, base_url=settings.MOLTEN_URL)
 
 
 async def refresh_auth_data():
     logger.debug("trying to refresh molten auth data")
     global MOLTEN_AUTH_DATA
     response = await MOLTEN_SESSION.post(
-        url=f"{settings.MOLTEN_URL}/oauth/access_token",
+        url="/oauth/access_token",
         data={"client_id": settings.MOLTEN_CLIENT_ID, "grant_type": "implicit"},
     )
     response.raise_for_status()
@@ -49,7 +50,7 @@ class MoltenAuth(httpx.Auth):
 
 async def get_product_list() -> list[dict]:
     response = await MOLTEN_SESSION.get(
-        f"{settings.MOLTEN_URL}/v2/products",
+        f"/v2/products",
         auth=MoltenAuth(),
     )
     logger.debug("product list received")
@@ -58,7 +59,7 @@ async def get_product_list() -> list[dict]:
 
 async def get_product_details(product_id: str) -> dict:
     response = await MOLTEN_SESSION.get(
-        f"{settings.MOLTEN_URL}/v2/products/{product_id}",
+        f"/v2/products/{product_id}",
         auth=MoltenAuth(),
     )
     logger.debug("product detail received")
@@ -81,10 +82,10 @@ class AddToCartException(Exception):
     pass
 
 
-async def add_to_cart(user_id: str, product_id: str):
+async def add_product_item_to_cart(user_id: str, product_id: str):
     try:
         response = await MOLTEN_SESSION.post(
-            f"{settings.MOLTEN_URL}/v2/carts/{user_id}/items",
+            f"/v2/carts/{user_id}/items",
             auth=MoltenAuth(),
             json={"data": {"id": product_id, "type": "cart_item", "quantity": 1}},
         )
@@ -96,7 +97,7 @@ async def add_to_cart(user_id: str, product_id: str):
 
 async def get_cart_items(user_id: str):
     response = await MOLTEN_SESSION.get(
-        f"{settings.MOLTEN_URL}/v2/carts/{user_id}/items",
+        f"/v2/carts/{user_id}/items",
         auth=MoltenAuth(),
     )
     response.raise_for_status()
@@ -105,7 +106,7 @@ async def get_cart_items(user_id: str):
 
 async def get_cart_price(user_id: str) -> str:
     response = await MOLTEN_SESSION.get(
-        f"{settings.MOLTEN_URL}/v2/carts/{user_id}",
+        f"/v2/carts/{user_id}",
         auth=MoltenAuth(),
     )
     response.raise_for_status()
@@ -114,7 +115,7 @@ async def get_cart_price(user_id: str) -> str:
 
 async def remove_item_from_cart(user_id: str, item_id: str):
     response = await MOLTEN_SESSION.delete(
-        f"{settings.MOLTEN_URL}/v2/carts/{user_id}/items/{item_id}",
+        f"/v2/carts/{user_id}/items/{item_id}",
         auth=MoltenAuth(),
     )
     response.raise_for_status()
@@ -127,7 +128,7 @@ class CreateCustomerException(Exception):
 async def create_customer(customer_id: str, customer_name: str, customer_email: str):
     try:
         response = await MOLTEN_SESSION.post(
-            url=f"{settings.MOLTEN_URL}/v2/customers/{customer_id}",
+            url=f"/v2/customers/{customer_id}",
             auth=MoltenAuth(),
             json={
                 "data": {
