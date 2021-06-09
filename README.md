@@ -33,7 +33,6 @@ poetry install
 - `REDIS_PASSWORD` - Пароль к редису. По умолчанию не требуется  
   
 - `LOG_LEVEL` - уровень логирования, варианты значений - см. официальную документацию [Loguru](https://loguru.readthedocs.io/en/stable/api/logger.html). По умолчанию - `DEBUG`.
-- `LOG_USE_JSON` - Выводить ли логи в JSON-формате. По умолчанию - False 
 
 
 ## Запуск
