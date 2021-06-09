@@ -42,9 +42,7 @@ cb_goto_cart = "goto_cart"
 cb_pay = "pay"
 
 
-@dp.message_handler(CommandStart(), state="*")
-async def show_product_list(message: types.Message, state: FSMContext):
-    await state.finish()
+async def show_product_list(message: types.Message):
     product_list = await molten_api.get_product_list()
     logger.debug("product list received")
     await message.answer(
@@ -68,9 +66,15 @@ async def show_product_list(message: types.Message, state: FSMContext):
     )
 
 
+@dp.message_handler(CommandStart(), state="*")
+async def handle_start(message: types.Message, state: FSMContext):
+    await state.finish()
+    await show_product_list(message=message)
+
+
 @dp.callback_query_handler(text=cb_goto_main_menu)
 async def show_product_list_cb(call: CallbackQuery, state: FSMContext):
-    await show_product_list(call.message, state=state)
+    await show_product_list(call.message)
     await call.answer()
 
 
@@ -114,7 +118,7 @@ async def add_to_cart(
     try:
         await molten_api.add_product_item_to_cart(user_id=call.from_user.id, product_id=callback_data["product_id"])
         await call.message.answer("товар добавлен")
-        await show_product_list(message=call.message, state=state)
+        await show_product_list(message=call.message)
     except molten_api.AddToCartException:
         await call.message.answer(
             "При добавлении товара в корзину произошла ошибка. Попробуйте позже или обратитесь в поддержку по тел. xxx"
