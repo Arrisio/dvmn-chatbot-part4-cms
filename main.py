@@ -115,7 +115,7 @@ async def add_to_cart(
 ):
     logger.debug(f"start adding to cart | callback_data={callback_data}")
     try:
-        await molten_api.add_to_cart(user_id=call.from_user.id, product_id=callback_data["product_id"])
+        await molten_api.add_product_item_to_cart(user_id=call.from_user.id, product_id=callback_data["product_id"])
         await call.message.answer("товар добавлен")
         await show_product_list(message=call.message, state=state)
     except molten_api.AddToCartException:
