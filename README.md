@@ -12,7 +12,12 @@ https://dvmn.org/modules/chat-bots/lesson/devman-bot/
 git clone https://github.com/Arrisio/dvmn-chatbot-part4-cms.git
 ```
 
-2. Требуется определить следующие переменные окружения:
+2. Для работы клиентов нужен Python версии не ниже 3.9 и пакетный менеджер [poetry](https://python-poetry.org/docs/)
+```bash
+poetry install
+```
+
+3. Требуется определить следующие переменные окружения:
 - `TG_BOT_TOKEN`=`Ваш токен`.
 - `TG_BOT_ADMIN_ID`=`UserId админа бота в Telegram. Можно узнать у этого бота @userinfobot`
 
@@ -30,10 +35,6 @@ git clone https://github.com/Arrisio/dvmn-chatbot-part4-cms.git
 - `LOG_LEVEL` - уровень логирования, варианты значений - см. официальную документацию [Loguru](https://loguru.readthedocs.io/en/stable/api/logger.html). По умолчанию - `DEBUG`.
 - `LOG_USE_JSON` - Выводить ли логи в JSON-формате. По умолчанию - False 
 
-3. Установить зависимости:
-```
-pip3 install -r requirements.txt
-```
 
 ## Запуск
 ```
