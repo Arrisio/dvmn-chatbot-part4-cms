@@ -1,14 +1,10 @@
 import logging
-from datetime import datetime
-from more_itertools import chunked
 
-import httpx
 from aiogram import Dispatcher, Bot, types
 from aiogram.contrib.fsm_storage.redis import RedisStorage2
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters import Command, Regexp
 from aiogram.dispatcher.filters import CommandStart
+from aiogram.dispatcher.filters import Regexp
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import (
     CallbackQuery,
@@ -17,9 +13,10 @@ from aiogram.types import (
 )
 from aiogram.utils import executor
 from aiogram.utils.callback_data import CallbackData
+from more_itertools import chunked
 
-from settings import Settings
 import molten_api
+from settings import Settings
 
 logger = logging.getLogger(__name__)
 
